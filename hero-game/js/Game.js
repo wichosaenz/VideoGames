@@ -8,9 +8,10 @@ class Game {
         this.input = new Input();
         this.particleSystem = new ParticleSystem();
         this.renderer = new Renderer(canvas, this.ctx);
+        this.highScoreManager = new HighScoreManager();
 
         // Estado del juego
-        this.state = 'start'; // 'start', 'playing', 'levelTransition', 'gameOver', 'victory'
+        this.state = 'start'; // 'start', 'playing', 'levelTransition', 'gameOver', 'victory', 'enterInitials'
         this.currentLevel = 1;
         this.maxLevels = 20;
 
@@ -22,6 +23,12 @@ class Game {
         this.dynamiteCount = 6;
         this.lastExtraLifeScore = 0;
         this.extraLifeThreshold = 20000;
+
+        // Sistema de high scores
+        this.playerInitials = '';
+        this.scoreRank = 0;
+        this.finalScore = 0;
+        this.finalLevel = 0;
 
         // Entidades del juego
         this.player = null;
@@ -80,6 +87,9 @@ class Game {
             case 'levelTransition':
                 this.updateLevelTransition();
                 break;
+            case 'enterInitials':
+                this.updateEnterInitials();
+                break;
             case 'gameOver':
             case 'victory':
                 this.updateEndScreen();
@@ -98,6 +108,12 @@ class Game {
     }
 
     updateGame() {
+        // Tecla ESC para volver al menú principal
+        if (this.input.escape) {
+            this.state = 'start';
+            return;
+        }
+
         // Actualizar jugador
         this.player.update(this.input, this.collisionDetector);
 
@@ -181,7 +197,7 @@ class Game {
                     this.particleSystem.createExplosion(this.player.x, this.player.y, '#ff0000', 15);
 
                     if (this.lives <= 0) {
-                        this.state = 'gameOver';
+                        this.checkGameOver();
                     }
                 }
             }
@@ -196,7 +212,7 @@ class Game {
                 this.particleSystem.createExplosion(this.player.x, this.player.y, '#ff8800', 20);
 
                 if (this.lives <= 0) {
-                    this.state = 'gameOver';
+                    this.checkGameOver();
                 }
             }
         }
@@ -279,9 +295,69 @@ class Game {
         this.currentLevel++;
 
         if (this.currentLevel > this.maxLevels) {
-            this.state = 'victory';
+            // Juego completado - verificar high score
+            this.checkVictory();
         } else {
             this.state = 'levelTransition';
+        }
+    }
+
+    checkGameOver() {
+        this.finalScore = this.score;
+        this.finalLevel = this.currentLevel;
+
+        // Verificar si califica para high score
+        if (this.highScoreManager.isHighScore(this.score)) {
+            this.scoreRank = this.highScoreManager.getScoreRank(this.score);
+            this.playerInitials = '';
+            this.state = 'enterInitials';
+        } else {
+            this.state = 'gameOver';
+        }
+    }
+
+    checkVictory() {
+        this.finalScore = this.score;
+        this.finalLevel = this.currentLevel;
+
+        // Verificar si califica para high score
+        if (this.highScoreManager.isHighScore(this.score)) {
+            this.scoreRank = this.highScoreManager.getScoreRank(this.score);
+            this.playerInitials = '';
+            this.state = 'enterInitials';
+        } else {
+            this.state = 'victory';
+        }
+    }
+
+    updateEnterInitials() {
+        // Capturar letras para las iniciales
+        const key = this.input.getLastKey();
+
+        if (key && this.input.isLetter(key) && this.playerInitials.length < 4) {
+            this.playerInitials += key.toUpperCase();
+        }
+
+        // Borrar letra
+        if (this.input.backspace && this.playerInitials.length > 0) {
+            this.playerInitials = this.playerInitials.slice(0, -1);
+        }
+
+        // Confirmar (mínimo 1 letra)
+        if (this.input.enter && this.playerInitials.length > 0) {
+            // Guardar el score
+            this.highScoreManager.addScore(
+                this.playerInitials,
+                this.finalScore,
+                this.finalLevel
+            );
+
+            // Determinar si fue game over o victoria
+            if (this.finalLevel >= this.maxLevels) {
+                this.state = 'victory';
+            } else {
+                this.state = 'gameOver';
+            }
         }
     }
 
@@ -308,7 +384,7 @@ class Game {
 
         switch (this.state) {
             case 'start':
-                this.renderer.drawStartScreen();
+                this.renderer.drawStartScreen(this.highScoreManager.getScores());
                 break;
 
             case 'playing':
@@ -337,12 +413,20 @@ class Game {
                 this.renderer.drawLevelTransition(this.currentLevel);
                 break;
 
+            case 'enterInitials':
+                this.renderer.drawEnterInitials(
+                    this.playerInitials,
+                    this.finalScore,
+                    this.scoreRank
+                );
+                break;
+
             case 'gameOver':
-                this.renderer.drawGameOver(this.score, this.currentLevel);
+                this.renderer.drawGameOver(this.finalScore, this.finalLevel);
                 break;
 
             case 'victory':
-                this.renderer.drawVictory(this.score);
+                this.renderer.drawVictory(this.finalScore);
                 break;
         }
     }

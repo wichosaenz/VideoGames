@@ -3,10 +3,12 @@ class Input {
     constructor() {
         this.keys = {};
         this.prevKeys = {};
+        this.lastKey = null;
 
         // Escuchar eventos de teclado
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
+            this.lastKey = e.key;
 
             // Prevenir scroll con las flechas
             if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
@@ -67,5 +69,27 @@ class Input {
     // Para reiniciar el juego
     get enter() {
         return this.isJustPressed('Enter');
+    }
+
+    // Para volver al menú principal
+    get escape() {
+        return this.isJustPressed('Escape');
+    }
+
+    // Para borrar (backspace)
+    get backspace() {
+        return this.isJustPressed('Backspace');
+    }
+
+    // Obtener última tecla presionada (para ingresar iniciales)
+    getLastKey() {
+        const key = this.lastKey;
+        this.lastKey = null;
+        return key;
+    }
+
+    // Verificar si es una letra (A-Z)
+    isLetter(key) {
+        return key && key.length === 1 && /[A-Za-z]/.test(key);
     }
 }

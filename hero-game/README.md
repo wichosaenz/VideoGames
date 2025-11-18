@@ -22,6 +22,9 @@ Sumérgete en las profundidades de peligrosas minas abandonadas, equipado con un
 - 🎖️ **Sistema de puntuación** con vidas extra cada 20,000 puntos
 - ⚡ **Gestión de energía** del jetpack
 - 🧨 **6 Dinamitas** por nivel para destruir paredes
+- 🏆 **High Scores tipo Arcade** con persistencia localStorage
+- ⌨️ **Entrada de iniciales** al lograr un récord (4 letras)
+- 🔄 **Tecla ESC** para volver al menú en cualquier momento
 
 ## 🕹️ Controles
 
@@ -32,7 +35,9 @@ Sumérgete en las profundidades de peligrosas minas abandonadas, equipado con un
 | **↓** | Descender más rápido |
 | **ESPACIO** | Disparar láser |
 | **ESPACIO + ↓** | Colocar dinamita |
-| **ENTER** | Iniciar juego / Reiniciar |
+| **ENTER** | Iniciar juego / Reiniciar / Confirmar |
+| **ESC** | Volver al menú principal |
+| **BACKSPACE** | Borrar letra (al ingresar iniciales) |
 
 ## 📋 Cómo Jugar
 
@@ -61,6 +66,13 @@ Tu misión es rescatar al minero atrapado en cada nivel. Para ello debes:
 - **100 puntos** por cada enemigo eliminado
 - **1,000+ puntos** por rescatar un minero (bonus según nivel)
 - **Bonus** por energía restante al rescatar
+
+### Sistema de High Scores Tipo Arcade
+- **Top 10 jugadores** guardados en localStorage
+- Si logras un high score, podrás **ingresar tus iniciales** (hasta 4 letras)
+- Los high scores se **conservan** entre sesiones
+- Pantalla de inicio muestra el **Top 5** de mejores jugadores
+- Colores especiales: 🥇 Oro (1°), 🥈 Plata (2°), 🥉 Bronce (3°)
 
 ## 🚀 Instalación y Ejecución
 
@@ -121,6 +133,7 @@ hero-game/
 │   ├── Collision.js      # Detección de colisiones
 │   ├── Input.js          # Manejo de controles
 │   ├── Particle.js       # Sistema de partículas
+│   ├── HighScore.js      # Sistema de puntuaciones altas
 │   ├── Renderer.js       # Sistema de renderizado
 │   └── utils.js          # Utilidades generales
 └── assets/               # (Futuro: sonidos e imágenes)

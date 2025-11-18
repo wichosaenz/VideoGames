@@ -205,7 +205,7 @@ class Renderer {
         ctx.restore();
     }
 
-    drawStartScreen() {
+    drawStartScreen(highScores) {
         const ctx = this.ctx;
 
         // Fondo
@@ -222,39 +222,47 @@ class Renderer {
         ctx.shadowColor = '#00ffff';
 
         ctx.fillStyle = '#00ffff';
-        ctx.fillText('H.E.R.O.', this.canvas.width / 2, 150);
+        ctx.fillText('H.E.R.O.', this.canvas.width / 2, 80);
 
-        ctx.font = 'bold 24px Arial';
+        ctx.font = 'bold 18px Arial';
         ctx.fillStyle = '#ffffff';
         ctx.shadowBlur = 10;
-        ctx.fillText('Helicopter Emergency Rescue Operation', this.canvas.width / 2, 200);
+        ctx.fillText('Helicopter Emergency Rescue Operation', this.canvas.width / 2, 120);
 
-        // Instrucciones
-        ctx.font = '18px Arial';
+        // Instrucciones principales (parpadeantes)
+        ctx.font = 'bold 20px Arial';
         ctx.fillStyle = '#ffff00';
         ctx.shadowBlur = 5;
-        ctx.fillText('PRESIONA ENTER PARA COMENZAR', this.canvas.width / 2, 300);
+        if (Math.floor(Date.now() / 500) % 2 === 0) {
+            ctx.fillText('PRESIONA ENTER PARA COMENZAR', this.canvas.width / 2, 160);
+        }
+
+        // Tabla de HIGH SCORES
+        this.drawHighScoreTable(highScores, 200);
 
         // Controles
-        ctx.font = '14px Arial';
+        ctx.font = '12px Arial';
         ctx.fillStyle = '#00ff00';
         ctx.shadowBlur = 3;
         ctx.textAlign = 'left';
 
-        const controlsX = 200;
-        const controlsY = 370;
-        const lineHeight = 25;
+        const controlsX = 50;
+        const controlsY = 500;
+        const lineHeight = 20;
 
-        ctx.fillText('← → : Mover', controlsX, controlsY);
-        ctx.fillText('↑ : Activar Jetpack', controlsX, controlsY + lineHeight);
-        ctx.fillText('↓ : Descender', controlsX, controlsY + lineHeight * 2);
-        ctx.fillText('ESPACIO : Disparar Láser', controlsX, controlsY + lineHeight * 3);
-        ctx.fillText('ESPACIO + ↓ : Colocar Dinamita', controlsX, controlsY + lineHeight * 4);
+        ctx.fillText('CONTROLES:', controlsX, controlsY);
+        ctx.fillText('← → : Mover', controlsX, controlsY + lineHeight);
+        ctx.fillText('↑ : Jetpack', controlsX, controlsY + lineHeight * 2);
+        ctx.fillText('↓ : Descender', controlsX, controlsY + lineHeight * 3);
+        ctx.fillText('ESPACIO : Láser', controlsX, controlsY + lineHeight * 4);
+        ctx.fillText('ESPACIO+↓ : Dinamita', controlsX, controlsY + lineHeight * 5);
+        ctx.fillText('ESC : Menú', controlsX, controlsY + lineHeight * 6);
 
         // Misión
         ctx.fillStyle = '#ff8800';
         ctx.textAlign = 'center';
-        ctx.fillText('¡Rescata a los mineros atrapados en las profundidades!', this.canvas.width / 2, 550);
+        ctx.font = '14px Arial';
+        ctx.fillText('¡Rescata a los mineros atrapados!', this.canvas.width / 2, 580);
 
         ctx.restore();
     }
@@ -330,6 +338,160 @@ class Renderer {
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#00ffff';
         ctx.fillText(`NIVEL ${levelNumber}`, this.canvas.width / 2, this.canvas.height / 2);
+
+        ctx.restore();
+    }
+
+    // Dibujar tabla de HIGH SCORES estilo arcade
+    drawHighScoreTable(scores, startY) {
+        const ctx = this.ctx;
+
+        ctx.save();
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ff00ff';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ff00ff';
+        ctx.fillText('HIGH SCORES', this.canvas.width / 2, startY);
+
+        // Encabezados
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#00ff00';
+        ctx.shadowBlur = 5;
+        ctx.textAlign = 'left';
+
+        const tableX = 250;
+        const tableY = startY + 40;
+        const lineHeight = 24;
+
+        ctx.fillText('RANK', tableX, tableY);
+        ctx.fillText('NAME', tableX + 70, tableY);
+        ctx.fillText('SCORE', tableX + 150, tableY);
+        ctx.fillText('LEVEL', tableX + 250, tableY);
+
+        // Línea separadora
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(tableX, tableY + 5);
+        ctx.lineTo(tableX + 300, tableY + 5);
+        ctx.stroke();
+
+        // Mostrar top 5
+        ctx.font = '14px monospace';
+        const scoreList = scores || [];
+        const maxDisplay = Math.min(5, scoreList.length);
+
+        for (let i = 0; i < maxDisplay; i++) {
+            const score = scoreList[i];
+            const y = tableY + 30 + (i * lineHeight);
+
+            // Color dorado para el primero
+            if (i === 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = '#ffd700';
+            } else if (i === 1) {
+                ctx.fillStyle = '#c0c0c0'; // Plata
+                ctx.shadowColor = '#c0c0c0';
+            } else if (i === 2) {
+                ctx.fillStyle = '#cd7f32'; // Bronce
+                ctx.shadowColor = '#cd7f32';
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = '#ffffff';
+            }
+
+            ctx.shadowBlur = 3;
+
+            // Rank
+            ctx.fillText(`${i + 1}.`, tableX, y);
+
+            // Iniciales
+            ctx.fillText(score.initials, tableX + 70, y);
+
+            // Score
+            ctx.fillText(score.score.toLocaleString(), tableX + 150, y);
+
+            // Level
+            ctx.fillText(score.level.toString(), tableX + 250, y);
+        }
+
+        ctx.restore();
+    }
+
+    // Pantalla para ingresar iniciales (estilo arcade)
+    drawEnterInitials(currentInitials, score, rank) {
+        const ctx = this.ctx;
+
+        ctx.save();
+
+        // Fondo semi-transparente
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Título
+        ctx.font = 'bold 36px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffff00';
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#ffff00';
+        ctx.fillText('¡NUEVO RÉCORD!', this.canvas.width / 2, 150);
+
+        // Rango alcanzado
+        ctx.font = 'bold 24px Arial';
+        ctx.fillStyle = '#00ff00';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00ff00';
+
+        let rankText = `TOP ${rank}`;
+        if (rank === 1) rankText = '¡ERES EL NÚMERO 1!';
+        else if (rank === 2) rankText = '¡SEGUNDO LUGAR!';
+        else if (rank === 3) rankText = '¡TERCER LUGAR!';
+
+        ctx.fillText(rankText, this.canvas.width / 2, 200);
+
+        // Puntuación
+        ctx.font = '20px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 10;
+        ctx.fillText(`Puntuación: ${score.toLocaleString()}`, this.canvas.width / 2, 250);
+
+        // Instrucción
+        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = '#00ffff';
+        ctx.shadowBlur = 8;
+        ctx.fillText('INGRESA TUS INICIALES (4 LETRAS)', this.canvas.width / 2, 320);
+
+        // Cuadro de iniciales con efecto retro
+        const boxY = 360;
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(this.canvas.width / 2 - 120, boxY, 240, 60);
+
+        // Iniciales actuales (grandes y brillantes)
+        ctx.font = 'bold 48px monospace';
+        ctx.fillStyle = '#ffff00';
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#ffff00';
+
+        // Mostrar iniciales con cursor parpadeante
+        let displayText = currentInitials.padEnd(4, '_');
+
+        // Cursor parpadeante en la posición actual
+        if (currentInitials.length < 4 && Math.floor(Date.now() / 300) % 2 === 0) {
+            const chars = displayText.split('');
+            chars[currentInitials.length] = '█';
+            displayText = chars.join('');
+        }
+
+        ctx.fillText(displayText, this.canvas.width / 2, boxY + 48);
+
+        // Instrucciones de control
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#aaaaaa';
+        ctx.shadowBlur = 3;
+        ctx.fillText('Escribe tus iniciales | BACKSPACE para borrar | ENTER para confirmar',
+                     this.canvas.width / 2, 480);
 
         ctx.restore();
     }
