@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H.E.R.O. - Helicopter Emergency Rescue Operation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-header">
+            <h1>H.E.R.O.</h1>
+            <div id="score-panel">
+                <div class="stat">
+                    <span class="label">SCORE:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">VIDAS:</span>
+                    <span id="lives">5</span>
+                </div>
+                <div class="stat">
+                    <span class="label">NIVEL:</span>
+                    <span id="level">1</span>
+                </div>
+                <div class="stat">
+                    <span class="label">DINAMITA:</span>
+                    <span id="dynamite">6</span>
+                </div>
+                <div class="stat">
+                    <span class="label">ENERGÍA:</span>
+                    <span id="energy">100</span>
+                </div>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="controls-info">
+            <p><strong>CONTROLES:</strong> ← → Mover | ↑ Volar | ↓ Descender | ESPACIO Disparar | ESPACIO+↓ Dinamita</p>
+        </div>
+    </div>
+
+    <!-- Scripts del juego -->
+    <script src="js/utils.js"></script>
+    <script src="js/Particle.js"></script>
+    <script src="js/Input.js"></script>
+    <script src="js/Collision.js"></script>
+    <script src="js/Laser.js"></script>
+    <script src="js/Dynamite.js"></script>
+    <script src="js/Enemy.js"></script>
+    <script src="js/Player.js"></script>
+    <script src="js/Level.js"></script>
+    <script src="js/Renderer.js"></script>
+    <script src="js/Game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
