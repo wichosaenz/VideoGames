@@ -1,6 +1,7 @@
 // Motor principal del juego
 class Game {
     constructor(canvas) {
+        console.log('Construyendo Game...');
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
@@ -42,38 +43,47 @@ class Game {
         this.transitionTimer = 0;
         this.transitionDuration = 120; // 2 segundos
 
-        this.initLevel(this.currentLevel);
+        // NO inicializamos el nivel aquí - esperamos a que el jugador presione ENTER
+        console.log('Game constructor completado. Estado:', this.state);
     }
 
     initLevel(levelNumber) {
-        // Crear nivel
-        this.level = new Level(levelNumber);
-        this.collisionDetector = new CollisionDetector(this.level);
+        console.log('Inicializando nivel', levelNumber);
+        try {
+            // Crear nivel
+            this.level = new Level(levelNumber);
+            this.collisionDetector = new CollisionDetector(this.level);
 
-        // Crear jugador
-        this.player = new Player(
-            this.level.startPosition.x,
-            this.level.startPosition.y
-        );
+            // Crear jugador
+            this.player = new Player(
+                this.level.startPosition.x,
+                this.level.startPosition.y
+            );
 
-        // Crear enemigos
-        this.enemies = [];
-        this.level.enemies.forEach(enemyData => {
-            this.enemies.push(new Enemy(enemyData.x, enemyData.y, enemyData.type));
-        });
+            // Crear enemigos
+            this.enemies = [];
+            this.level.enemies.forEach(enemyData => {
+                this.enemies.push(new Enemy(enemyData.x, enemyData.y, enemyData.type));
+            });
 
-        // Resetear arrays
-        this.lasers = [];
-        this.dynamites = [];
+            // Resetear arrays
+            this.lasers = [];
+            this.dynamites = [];
 
-        // Dinamita disponible
-        this.dynamiteCount = this.level.dynamiteCount;
+            // Dinamita disponible
+            this.dynamiteCount = this.level.dynamiteCount;
 
-        // Resetear energía
-        this.energy = this.maxEnergy;
+            // Resetear energía
+            this.energy = this.maxEnergy;
 
-        // Limpiar partículas
-        this.particleSystem.clear();
+            // Limpiar partículas
+            this.particleSystem.clear();
+
+            console.log('Nivel inicializado correctamente');
+        } catch (error) {
+            console.error('Error al inicializar nivel:', error);
+            throw error;
+        }
     }
 
     update() {
@@ -102,6 +112,7 @@ class Game {
 
     updateStartScreen() {
         if (this.input.enter) {
+            console.log('ENTER presionado, iniciando juego...');
             this.state = 'playing';
             this.resetGame();
         }
@@ -110,7 +121,14 @@ class Game {
     updateGame() {
         // Tecla ESC para volver al menú principal
         if (this.input.escape) {
+            console.log('ESC presionado, volviendo al menú...');
             this.state = 'start';
+            return;
+        }
+
+        // Solo actualizar si el nivel está inicializado
+        if (!this.level || !this.player) {
+            console.warn('Nivel o jugador no inicializado');
             return;
         }
 
@@ -271,6 +289,7 @@ class Game {
 
     updateEndScreen() {
         if (this.input.enter) {
+            console.log('Reiniciando juego...');
             this.resetGame();
         }
     }
@@ -362,6 +381,7 @@ class Game {
     }
 
     resetGame() {
+        console.log('Reseteando juego...');
         this.currentLevel = 1;
         this.score = 0;
         this.lives = 5;
@@ -372,62 +392,75 @@ class Game {
     }
 
     updateUI() {
-        document.getElementById('score').textContent = this.score;
-        document.getElementById('lives').textContent = this.lives;
-        document.getElementById('level').textContent = this.currentLevel;
-        document.getElementById('dynamite').textContent = this.dynamiteCount;
-        document.getElementById('energy').textContent = Math.floor(this.energy);
+        try {
+            document.getElementById('score').textContent = this.score;
+            document.getElementById('lives').textContent = this.lives;
+            document.getElementById('level').textContent = this.currentLevel;
+            document.getElementById('dynamite').textContent = this.dynamiteCount;
+            document.getElementById('energy').textContent = Math.floor(this.energy);
+        } catch (error) {
+            console.warn('Error actualizando UI:', error);
+        }
     }
 
     render() {
-        this.renderer.clear();
+        try {
+            this.renderer.clear();
 
-        switch (this.state) {
-            case 'start':
-                this.renderer.drawStartScreen(this.highScoreManager.getScores());
-                break;
+            switch (this.state) {
+                case 'start':
+                    this.renderer.drawStartScreen(this.highScoreManager.getScores());
+                    break;
 
-            case 'playing':
-                // Dibujar nivel
-                this.renderer.drawLevel(this.level);
+                case 'playing':
+                    // Solo dibujar si el nivel está inicializado
+                    if (this.level && this.player) {
+                        // Dibujar nivel
+                        this.renderer.drawLevel(this.level);
 
-                // Dibujar dinamitas
-                this.dynamites.forEach(dynamite => dynamite.draw(this.ctx));
+                        // Dibujar dinamitas
+                        this.dynamites.forEach(dynamite => dynamite.draw(this.ctx));
 
-                // Dibujar láseres
-                this.lasers.forEach(laser => laser.draw(this.ctx));
+                        // Dibujar láseres
+                        this.lasers.forEach(laser => laser.draw(this.ctx));
 
-                // Dibujar enemigos
-                this.enemies.forEach(enemy => enemy.draw(this.ctx));
+                        // Dibujar enemigos
+                        this.enemies.forEach(enemy => enemy.draw(this.ctx));
 
-                // Dibujar jugador
-                this.player.draw(this.ctx, this.particleSystem);
+                        // Dibujar jugador
+                        this.player.draw(this.ctx, this.particleSystem);
 
-                // Dibujar partículas
-                this.particleSystem.draw(this.ctx);
-                break;
+                        // Dibujar partículas
+                        this.particleSystem.draw(this.ctx);
+                    }
+                    break;
 
-            case 'levelTransition':
-                // Dibujar nivel actual
-                this.renderer.drawLevel(this.level);
-                this.renderer.drawLevelTransition(this.currentLevel);
-                break;
+                case 'levelTransition':
+                    if (this.level) {
+                        // Dibujar nivel actual
+                        this.renderer.drawLevel(this.level);
+                        this.renderer.drawLevelTransition(this.currentLevel);
+                    }
+                    break;
 
-            case 'enterInitials':
-                this.renderer.drawEnterInitials(
-                    this.playerInitials,
-                    this.finalScore,
-                    this.scoreRank
-                );
-                break;
+                case 'enterInitials':
+                    this.renderer.drawEnterInitials(
+                        this.playerInitials,
+                        this.finalScore,
+                        this.scoreRank
+                    );
+                    break;
 
-            case 'gameOver':
-                this.renderer.drawGameOver(this.finalScore, this.finalLevel);
-                break;
+                case 'gameOver':
+                    this.renderer.drawGameOver(this.finalScore, this.finalLevel);
+                    break;
 
-            case 'victory':
-                this.renderer.drawVictory(this.finalScore);
-                break;
+                case 'victory':
+                    this.renderer.drawVictory(this.finalScore);
+                    break;
+            }
+        } catch (error) {
+            console.error('Error en render:', error);
         }
     }
 
