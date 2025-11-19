@@ -37,41 +37,22 @@
         <div id="controls-info">
             <p><strong>CONTROLES:</strong> ← → Mover | ↑ Volar | ↓ Descender | ESPACIO Disparar | ESPACIO+↓ Dinamita | ESC Menú</p>
         </div>
-        <div id="error-message" style="display:none; color: red; padding: 10px; text-align: center;"></div>
+        <div id="error-message" style="display:none; color: #ff3333; background: #330000; padding: 15px; margin: 10px; text-align: center; border: 2px solid #ff0000; border-radius: 5px;"></div>
     </div>
 
-    <!-- Scripts del juego -->
-    <script>
-        // Manejo global de errores
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            const errorDiv = document.getElementById('error-message');
-            if (errorDiv) {
-                errorDiv.style.display = 'block';
-                errorDiv.innerHTML = '<strong>Error:</strong> ' + msg + '<br>' +
-                                    'Archivo: ' + url + '<br>' +
-                                    'Línea: ' + lineNo + '<br>' +
-                                    'Por favor, abre la consola del navegador (F12) para más detalles.';
-            }
-            console.error('Error detectado:', error);
-            return false;
-        };
-
-        // Log de carga de scripts
-        console.log('Cargando scripts del juego...');
-    </script>
-
-    <script src="js/utils.js" onerror="console.error('Error cargando utils.js')"></script>
-    <script src="js/particle.js" onerror="console.error('Error cargando particle.js')"></script>
-    <script src="js/input.js" onerror="console.error('Error cargando input.js')"></script>
-    <script src="js/collision.js" onerror="console.error('Error cargando collision.js')"></script>
-    <script src="js/laser.js" onerror="console.error('Error cargando laser.js')"></script>
-    <script src="js/dynamite.js" onerror="console.error('Error cargando dynamite.js')"></script>
-    <script src="js/enemy.js" onerror="console.error('Error cargando enemy.js')"></script>
-    <script src="js/player.js" onerror="console.error('Error cargando player.js')"></script>
-    <script src="js/level.js" onerror="console.error('Error cargando level.js')"></script>
-    <script src="js/highscore.js" onerror="console.error('Error cargando highscore.js')"></script>
-    <script src="js/renderer.js" onerror="console.error('Error cargando renderer.js')"></script>
-    <script src="js/game.js" onerror="console.error('Error cargando game.js')"></script>
-    <script src="js/main.js" onerror="console.error('Error cargando main.js')"></script>
+    <!-- Scripts del juego - ORDEN CRÍTICO -->
+    <script src="js/utils.js"></script>
+    <script src="js/particle.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/collision.js"></script>
+    <script src="js/laser.js"></script>
+    <script src="js/dynamite.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/level.js"></script>
+    <script src="js/highscore.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
